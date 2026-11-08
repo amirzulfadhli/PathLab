@@ -1,0 +1,28 @@
+#grid {
+    display: grid;
+    grid-template-columns: repeat(5, 50px);
+    gap: 3px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color:  #e2e8f0;
+    border: 1px solid #94a3b8;
+}
+
+.cell {
+    cursor: pointer;
+}
+
+.wall {
+    background-color: #64748b; 
+}
+
+.start {
+    background-color:  #22c55e;
+}
+
+.end {
+    background-color:  #ef4444;    
+}
