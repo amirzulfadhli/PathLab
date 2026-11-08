@@ -28,6 +28,42 @@ for (let row = 0; row < rows; row++){
 
 const runButton = document.getElementById("runBFS");
 
-runButton.addEventListener("click", () => {
-    console.log("BFS button clicked");
+runButton.addEventListener("click", async() => {
+    const blocked =[];
+
+    document.querySelectorAll(".cell").forEach((cell, index) => {
+        if (cell.classList.contains("wall")) {
+            const row = Math.floor(index/ cols);
+            const column = index % cols;
+
+            blocked.push([row, column]);
+        }
+    });
+
+    console.log("Blocked cells: ", blocked);
+
+    const response = await fetch("/api/bfs", {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify({blocked: blocked})
+    })
+        
+    const data = await response.json();
+
+    console.log("Shortest path: ", data.path)
+
+    const cells = document.querySelectorAll(".cell");
+
+    cells.forEach(cell => cell.classList.remove("path"));
+
+    data.path.forEach(([row, column]) => {
+        const index = row*cols + column;
+        const cell =  cells[index]
+
+        if(!cell.classList.contains("start") && !cell.classList.contains("end")) {
+            cell.classList.add("path");
+        }
+    });
 })

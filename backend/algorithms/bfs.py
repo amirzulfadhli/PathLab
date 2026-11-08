@@ -15,34 +15,35 @@ directions = [
     (0, 1),  #left
 ]
 
-def is_valid(row, col):
+def is_valid(row, col, blocked=None):
+    if blocked is None:
+        blocked = obstacles
     if row < 0 or row >= rows:
         return False    
     if col < 0 or col >= column:
         return False    
-    if (row, col) in obstacles:
+    if (row, col) in blocked:
         return False        
     return True
 
-def get_neighbors(row, col):
+def get_neighbors(row, col, blocked = None):
     neighbors = []
     
     for dr, dc in directions:
         new_row = row + dr
         new_column = col + dc
     
-        if is_valid(new_row, new_column):
+        if is_valid(new_row, new_column, blocked):
             neighbors.append((new_row, new_column))
     return neighbors
 
-def bfs(start, end):
+def bfs(start, end, blocked = None):
     qeue = deque([start])
     visited = {start}
     parents = {start: None}
 
     while(qeue):
         current = qeue.popleft()
-        print("exploring: ", current)
 
         if current == end:
             path = []
@@ -52,16 +53,17 @@ def bfs(start, end):
                 path.append(node)
                 node = parents[node]
 
-            print("Backward path:", path)
-            print("Previous vell: ", parents[current])
-            print("Destination reached")
-            return True
+            path.reverse()
+            return path
 
-        for neighbor in get_neighbors(*current):
+        for neighbor in get_neighbors(*current, blocked):
             if neighbor not in visited:
                 parents[neighbor] = current   
                 visited.add(neighbor)
                 qeue.append(neighbor)
-    return False
+    return []
 
-bfs(start, end)
+result = bfs(start, end)
+if __name__ == "__main__":
+    print("Open grid:", bfs(start, end, set()))
+    print("Blocked start:", bfs(start, end, {(1,0),(0,1)}))
