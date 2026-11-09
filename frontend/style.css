@@ -1,3 +1,91 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 32px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+button, select {
+    font: inherit;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    margin: 20px 0;
+    background-color: #e2e8f0;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.toolbar select {
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color:  #ffffff;
+    color: #0f172a;
+    cursor: pointer;
+    transition: 0.2s ease;
+}    
+
+.toolbar button:hover:not(:disabled),
+.toolbar select:hover:not(:disabled) {
+    border-color: #64748b;
+    background-color: #f1f5f9;
+}
+
+.toolbar button:disabled,
+.toolbar select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#runBFS {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: white;
+    font-weight: 600;
+}
+
+#runBFS:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+.toolbar #runBFS,
+.toolbar #resetGrid {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toolbar #runBFS {
+    background-color:  #2563eb;
+    color: white;
+    border: 1px solid #2563eb;
+}
+
+.toolbar #reserGrid {
+    background-color: white;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+
 #grid {
     display: grid;
     width: min(90vw, 600px);
@@ -10,10 +98,6 @@
     box-sizing: border-box;
     background-color: #e2e8f0;
     border: 1px solid #94a3b8;
-    cursor: pointer;
-}
-
-.cell {
     cursor: pointer;
 }
 

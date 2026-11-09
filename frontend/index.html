@@ -10,30 +10,43 @@
     <h1>PathLab</h1>
     <p>Interactive pathfinding visualizer</p>
     
-    <label for="gridSize">Grid Size</label>
-    <select id="gridSize">
-        <option value="5">5 x 5</option>
-        <option value="10">10 x 10</option>
-        <option value="20">20 x 20</option>
-    </select>
+    <div class="toolbar">
+        <label for="gridSize">Grid Size</label>
+        <select id="gridSize">
+            <option value="5">5 x 5</option>
+            <option value="10">10 x 10</option>
+            <option value="20">20 x 20</option>
+        </select>
 
-    <label for="algorithm">Algorithm</label>
-    <select id="algorithm">
-        <option value="bfs">BFS</option>
-        <option value="dijkstra">Dijkstra</option>
-    </select>
+        <label for="algorithm">Algorithm</label>
+        <select id="algorithm">
+            <option value="bfs">BFS</option>
+            <option value="dijkstra">Dijkstra</option>
+            <option value="astar">Astar</option>
+        </select>
+
+        <button id="runBFS">Run Algorithm</button>
+        <button id="resetGrid">Reset Grid</button>
+
+        <label for="animationSpeed">Speed</label>
+        <select id="animationSpeed">
+            <option value="200">Slow</option>
+            <option value="80" selected>Normal</option>
+            <option value="10">Fast</option>
+        </select>
+    </div>
 
     <div id="grid"></div>
-    <button id="runBFS">Run BFS</button>
-    <button id="resetGrid">Reset Grid</button>
 
-    <label for="animationSpeed">Speed</label>
-    <select id="animationSpeed">
-        <option value="200">Slow</option>
-        <option value="80" selected>Normal</option>
-        <option value="10">Fast</option>
-    </select>
     <p id = "resultStatus"></p>
+
+    <section id="statistics">
+        <h3>Algortihm Statistics</h3>
+
+        <p>Path moves: <span id="pathMoves">-</span></p>
+        <p>Explored cells: <span id="exploredCount">-</span></p>
+        <p>Total grid cells:<span id="totalCells">-</span></p>
+    </section>
 
     <script src="script.js"></script>
 </body>

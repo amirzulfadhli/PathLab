@@ -30,6 +30,7 @@ function createGrid() {
                 });
                 document.getElementById("resultStatus").textContent = "";
                 cell.classList.toggle("wall");
+                resetStatistics();
             });
 
             grid.appendChild(cell);
@@ -38,6 +39,12 @@ function createGrid() {
 }
 
 createGrid();
+
+function resetStatistics() {
+        document.getElementById("pathMoves").textContent = "-";
+        document.getElementById("exploredCount").textContent = "-";
+        document.getElementById("totalCells").textContent = rows * cols;
+    }
 
 const runButton = document.getElementById("runBFS");
 
@@ -81,12 +88,14 @@ runButton.addEventListener("click", async() => {
             
         const data = await response.json();
 
-        console.log("Explored received:", data.explored?.length);
+        document.getElementById("pathMoves").textContent = data.path.length > 0? data.path.length -1 : "-";
+        document.getElementById("exploredCount").textContent = data.explored.length;
+        document.getElementById("totalCells").textContent = rows * cols;
 
+        console.log("Explored received:", data.explored?.length);
         console.log("Received path length:", data.path.length);
         console.log("Last position:", data.path.at(-1));
         console.log("Grid cells:", document.querySelectorAll(".cell").length);
-
         console.log("Shortest path: ", data.path)
 
         const cells = document.querySelectorAll(".cell");
@@ -141,6 +150,8 @@ resetButton.addEventListener("click", () => {
         cell.classList.remove("wall", "path", "explored");
     });
     document.getElementById("resultStatus").textContent = "";
+
+    resetStatistics();
 });
 
 const gridSize = document.getElementById("gridSize");
@@ -152,6 +163,8 @@ function updateGridSize (){
     cols = size;
 
     createGrid();
+    resetStatistics();
+    document.getElementById("resultStatus").textContent = "";
     console.log("Grid updated:", rows, cols);
 }
 

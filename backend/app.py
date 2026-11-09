@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from algorithms.bfs import bfs
 from algorithms.dijkstra import dijkstra
+from algorithms.astar import astar
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 
@@ -20,12 +21,16 @@ def run_bfs():
     if size not in (5, 10, 20):
         return jsonify({"error": "Invalid grid size"}), 400
 
-    algorithm = data.get("alogrithm", "bfs")
+    algorithm = data.get("algorithm", "bfs")
+    print("API selected algorithm", algorithm)
 
     if algorithm == "bfs":
         result = bfs((0, 0), (size -1, size -1), blocked, size, size)
-    elif algortihm == "dijkstra":
+    elif algorithm == "dijkstra":
         result = dijkstra((0, 0), (size -1, size -1), blocked, size, size)
+    elif algorithm == "astar":
+        print("Executing A* algortihm")
+        result = astar((0,0), (size -1, size -1), blocked, size, size)
     else:
         return jsonify({"error": "Invalid algorithm"}), 400
 
