@@ -1,14 +1,16 @@
 #grid {
     display: grid;
-    grid-template-columns: repeat(5, 50px);
+    width: min(90vw, 600px);
     gap: 3px;
 }
 
 .cell {
-    width: 50px;
-    height: 50px;
-    background-color:  #e2e8f0;
+    width: 100%;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    background-color: #e2e8f0;
     border: 1px solid #94a3b8;
+    cursor: pointer;
 }
 
 .cell {
@@ -25,6 +27,10 @@
 
 .end {
     background-color:  #ef4444;    
+}
+
+.explored {
+    background-color: #bfdbfe;
 }
 
 .path {
