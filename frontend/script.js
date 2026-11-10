@@ -42,6 +42,23 @@ function createGrid() {
 
 createGrid();
 
+document.getElementById("mazePreset").addEventListener("change", (event) => {
+    const preset = event.target.value;
+
+    createGrid();
+
+    if(preset === "single_wall") {
+        const cells = document.querySelectorAll("#grid .cell");
+        const wallColumn = Math.floor(cols/2);
+
+        for(let row = 0; row < rows; row++) {
+            const index = row*cols + wallColumn;
+            cells[index].classList.add("wall");
+        }
+    }
+    resetComparison();
+});
+
 function resetStatistics() {
         document.getElementById("pathMoves").textContent = "-";
         document.getElementById("exploredCount").textContent = "-";
@@ -263,6 +280,7 @@ function resetComparison() {
         document.getElementById(`${algorithm}Moves`).textContent = "-";
         document.getElementById(`${algorithm}Explored`).textContent = "-";
         document.getElementById(`${algorithm}Percent`).textContent = "-";
+        document.getElementById(`${algorithm}Time`).textContent = "-";
 
         document.getElementById(`${algorithm}Bar`).style.width = "0%";
     });

@@ -30,8 +30,6 @@ def astar(start, end, blocked = None, grid_rows = 5, grid_cols = 5):
                 node = parents[node]
 
             path.reverse()
-            print("Shortest path:", path)
-            print("Explored cells:", len(explored))
             return {
                 "path": path,
                 "explored": explored
