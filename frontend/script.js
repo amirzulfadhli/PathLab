@@ -6,6 +6,7 @@ const grid = document.getElementById("grid");
 function createGrid() {
     grid.innerHTML = "";
     grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    grid.style.maxWidth = `${Math.min(cols * 50, 720)}px`;
     for (let row = 0; row < rows; row++){
         for (let column = 0; column < cols; column++){
             const cell = document.createElement("div");
@@ -31,6 +32,7 @@ function createGrid() {
                 document.getElementById("resultStatus").textContent = "";
                 cell.classList.toggle("wall");
                 resetStatistics();
+                resetComparison();
             });
 
             grid.appendChild(cell);
@@ -152,6 +154,7 @@ resetButton.addEventListener("click", () => {
     document.getElementById("resultStatus").textContent = "";
 
     resetStatistics();
+    resetComparison();
 });
 
 const gridSize = document.getElementById("gridSize");
@@ -164,11 +167,103 @@ function updateGridSize (){
 
     createGrid();
     resetStatistics();
+    resetComparison();
     document.getElementById("resultStatus").textContent = "";
     console.log("Grid updated:", rows, cols);
 }
 
 gridSize.addEventListener("change", updateGridSize);
 
-
 updateGridSize();
+
+const compareButton = document.getElementById("compareAlgorithm");
+
+compareButton.addEventListener("click", async () => {
+    if (runButton.disabled) return;
+    
+    runButton.disabled = true;
+    compareButton.disabled = true;
+    gridSize.disabled = true;
+    resetButton.disabled = true;
+
+    try {
+        const blocked = [];
+
+        document.querySelectorAll(".cell").forEach((cell, index) => {
+            if (cell.classList.contains("wall")) {
+                const row = Math.floor(index/cols);
+                const column = index%cols;
+
+                blocked.push([row, column]);
+            }
+        });
+        
+        const algorithms = ["bfs", "dijkstra", "astar"];
+
+        const result = await Promise.all(
+            algorithms.map(async (algorithm) => {
+                const response = await fetch("/api/bfs", {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        blocked: blocked,
+                        size: rows,
+                        algorithm: algorithm
+                    })
+                });
+
+                if(!response.ok) {
+                    throw new Error(`${algorithm}: HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                return {
+                    algorithm: algorithm,
+                    moves: data.path.length > 0? data.path.length -1 : null,
+                    explored: data.explored.length,
+                    execution_ms: data.execution_ms
+                };
+            })
+        );
+
+        console.table(result);
+
+        result.forEach(result => {
+            const movesCell = document.getElementById(`${result.algorithm}Moves`);
+            const exploredCell = document.getElementById(`${result.algorithm}Explored`);
+
+            movesCell.textContent =  result.moves ?? "-";
+            exploredCell.textContent = result.explored;
+
+            const percentage = (result.explored/(rows*cols)) * 100;
+
+            document.getElementById(`${result.algorithm}Bar`).style.width = `${percentage}%`;
+            document.getElementById(`${result.algorithm}Percent`).textContent = `${percentage.toFixed(1)}%`;
+
+            document.getElementById(`${result.algorithm}Time`).textContent = result.execution_ms.toFixed(3);
+        })
+
+    } catch (error) {
+        console.error("Comparison failed:", error);
+    } finally {
+        runButton.disabled = false;
+        compareButton.disabled = false;
+        gridSize.disabled = false;
+        resetButton.disabled = false;
+    }
+});
+
+function resetComparison() {
+    const algorithms = ["bfs", "dijkstra", "astar"];
+
+    algorithms.forEach(algorithm => {
+        document.getElementById(`${algorithm}Moves`).textContent = "-";
+        document.getElementById(`${algorithm}Explored`).textContent = "-";
+        document.getElementById(`${algorithm}Percent`).textContent = "-";
+
+        document.getElementById(`${algorithm}Bar`).style.width = "0%";
+    });
+}

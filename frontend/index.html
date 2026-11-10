@@ -26,6 +26,7 @@
         </select>
 
         <button id="runBFS">Run Algorithm</button>
+        <button id="compareAlgorithm">Compare Algorithms</button>
         <button id="resetGrid">Reset Grid</button>
 
         <label for="animationSpeed">Speed</label>
@@ -36,16 +37,104 @@
         </select>
     </div>
 
-    <div id="grid"></div>
+    <section class="grid-panel">
+        <div id="grid-header">
+            <h2>Pathfinding Grid</h2>
+
+            <div id="grid-legend">
+                <span><i class="legend-dot start"></i>Start</span>
+                <span><i class="legend-dot end"></i>End</span>
+                <span><i class="legend-dot wall"></i>Wall</span>
+                <span><i class="legend-dot explored"></i>Explored</span>
+                <span><i class="legend-dot path"></i>Shortest path</span>
+            </div>
+        </div>
+
+        <div id="grid"></div>
+    </section>
 
     <p id = "resultStatus"></p>
 
     <section id="statistics">
         <h3>Algortihm Statistics</h3>
 
-        <p>Path moves: <span id="pathMoves">-</span></p>
-        <p>Explored cells: <span id="exploredCount">-</span></p>
-        <p>Total grid cells:<span id="totalCells">-</span></p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p>Path moves:</p> 
+                <span id="pathMoves">-</span>
+            </div>
+            <div class="stat-card">
+                <p>Explored cells:</p>
+                <span id="exploredCount">-</span>
+            </div>
+            <div class="stat-card">
+                <p>Total grid cells:</p>
+                <span id="totalCells">-</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="comparison">
+        <h3>Algorithm comparison</h3>
+        <p>Compare pathfinding performance on the same grid</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithms</th>
+                    <th>Path moves</th>
+                    <th>Explored cells</th>
+                    <th>Exploration %</th>
+                    <th>Execution time (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BFS</td>
+                    <td id="bfsMoves"></td>
+                    <td id="bfsExplored"></td>
+                    <td id="bfsPercent"></td>
+                    <td id="bfsTime"></td>
+                </tr>
+                <tr>
+                    <td>Dijkstra</td>
+                    <td id="dijkstraMoves"></td>
+                    <td id="dijkstraExplored"></td>
+                    <td id="dijkstraPercent"></td>
+                    <td id="dijkstraTime"></td>
+                </tr>
+                <tr>
+                    <td>Astar</td>
+                    <td id="astarMoves"></td>
+                    <td id="astarExplored"></td>
+                    <td id="astarPercent"></td>
+                    <td id="astarTime"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="comparsionChart">
+            <h4>Explorasion comparison</h4>
+
+            <div class="chart-row">
+                <span>BFS</span>
+                <div class="bar-track">
+                    <div class="bar" id="bfsBar"></div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <span>Dijkstra</span>
+                <div class="bar-track">
+                    <div class="bar" id="dijkstraBar"></div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <span>Astar</span>
+                <div class="bar-track">
+                    <div class="bar" id="astarBar"></div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <script src="script.js"></script>
