@@ -121,6 +121,16 @@
             </tbody>
         </table>
 
+        <p class="comparison-note">
+            <span class="best-explored">★</span> Fewest explored cells
+            &nbsp | &nbsp;
+            <span class="best-time">★</span> Fastest execution time
+        </p>
+
+        <small>
+            Execution times are measured per run and may vary.
+        </small>
+
         <div id="comparsionChart">
             <h4>Explorasion comparison</h4>
 
@@ -129,18 +139,21 @@
                 <div class="bar-track">
                     <div class="bar" id="bfsBar"></div>
                 </div>
+                <span class="bar-value" id="bfsBarValue">-</span>
             </div>
             <div class="chart-row">
                 <span>Dijkstra</span>
                 <div class="bar-track">
                     <div class="bar" id="dijkstraBar"></div>
                 </div>
+                <span class="bar-value" id="dijkstraBarValue">-</span>
             </div>
             <div class="chart-row">
                 <span>Astar</span>
                 <div class="bar-track">
                     <div class="bar" id="astarBar"></div>
                 </div>
+                <span class="bar-value" id="astarBarValue">-</span>
             </div>
         </div>
     </section>

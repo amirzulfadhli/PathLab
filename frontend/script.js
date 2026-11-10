@@ -7,6 +7,7 @@ function createGrid() {
     grid.innerHTML = "";
     grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
     grid.style.maxWidth = `${Math.min(cols * 50, 720)}px`;
+
     for (let row = 0; row < rows; row++){
         for (let column = 0; column < cols; column++){
             const cell = document.createElement("div");
@@ -51,8 +52,24 @@ document.getElementById("mazePreset").addEventListener("change", (event) => {
         const cells = document.querySelectorAll("#grid .cell");
         const wallColumn = Math.floor(cols/2);
 
-        for(let row = 0; row < rows; row++) {
+        for(let row = 0; row < rows -1; row++) {
             const index = row*cols + wallColumn;
+            cells[index].classList.add("wall");
+        }
+    }
+    else if(preset === "zigzag") {
+        const cells = document.querySelectorAll("#grid .cell");
+
+        const firstWall = Math.floor(cols/3);
+        const secondWall = Math.floor((cols*2)/3);
+
+        for(let row = 0; row < rows -1; row++) {
+            const index = row*cols + firstWall;
+            cells[index].classList.add("wall");
+        }
+
+        for(let row = 1; row < rows; row++) {
+            const index = row*cols + secondWall;
             cells[index].classList.add("wall");
         }
     }
@@ -66,11 +83,14 @@ function resetStatistics() {
     }
 
 const runButton = document.getElementById("runBFS");
+const mazePreset = document.getElementById("mazePreset");
 
 runButton.addEventListener("click", async() => {
     runButton.disabled = true;
     gridSize.disabled = true;
     resetButton.disabled = true;
+    mazePreset.disabled = true;
+    compareButton.disabled = true;
     const blocked =[];
 
     try {
@@ -155,6 +175,8 @@ runButton.addEventListener("click", async() => {
         runButton.disabled = false;
         gridSize.disabled = false;
         resetButton.disabled = false;
+        mazePreset.disabled = false;
+        compareButton.disabled = false;
     }
 })
 
@@ -182,7 +204,7 @@ function updateGridSize (){
     rows = size;
     cols = size;
 
-    createGrid();
+    document.getElementById("mazePreset").dispatchEvent(new Event("change"));
     resetStatistics();
     resetComparison();
     document.getElementById("resultStatus").textContent = "";
@@ -202,6 +224,7 @@ compareButton.addEventListener("click", async () => {
     compareButton.disabled = true;
     gridSize.disabled = true;
     resetButton.disabled = true;
+    mazePreset.disabled = true;
 
     try {
         const blocked = [];
@@ -247,29 +270,52 @@ compareButton.addEventListener("click", async () => {
         );
 
         console.table(result);
+        const minExplored = Math.min(
+            ...result.map(item => item.explored)
+        );
+        const minTime = Math.min(
+            ...result.map(item => item.execution_ms)
+        );
 
         result.forEach(result => {
             const movesCell = document.getElementById(`${result.algorithm}Moves`);
             const exploredCell = document.getElementById(`${result.algorithm}Explored`);
 
             movesCell.textContent =  result.moves ?? "-";
-            exploredCell.textContent = result.explored;
+            exploredCell.textContent = result.explored === minExplored? `${result.explored}★`:  result.explored;
+            exploredCell.classList.toggle(
+                "best-explored",
+                result.explored === minExplored
+            );
 
             const percentage = (result.explored/(rows*cols)) * 100;
 
             document.getElementById(`${result.algorithm}Bar`).style.width = `${percentage}%`;
             document.getElementById(`${result.algorithm}Percent`).textContent = `${percentage.toFixed(1)}%`;
 
-            document.getElementById(`${result.algorithm}Time`).textContent = result.execution_ms.toFixed(3);
+            const timeCell = document.getElementById(`${result.algorithm}Time`)
+
+            timeCell.textContent = `${result.execution_ms.toFixed(3)}${result.execution_ms === minTime? "★": ""}`;
+            timeCell.classList.toggle(
+                "best-time",
+                result.execution_ms === minTime
+            )
+
+            document.getElementById("resultStatus").textContent = "Comparing algorithms...";
         })
 
     } catch (error) {
         console.error("Comparison failed:", error);
+
+        resetComparison();
+
+        document.getElementById("resultStatus").textContent = "Comparison failed. Please check the server and try again";
     } finally {
         runButton.disabled = false;
         compareButton.disabled = false;
         gridSize.disabled = false;
         resetButton.disabled = false;
+        mazePreset.disabled = false;
     }
 });
 
@@ -283,5 +329,7 @@ function resetComparison() {
         document.getElementById(`${algorithm}Time`).textContent = "-";
 
         document.getElementById(`${algorithm}Bar`).style.width = "0%";
+        document.getElementById(`${algorithm}Explored`).classList.remove("best-explored");
+        document.getElementById(`${algorithm}Time`).classList.remove("best-time");
     });
 }

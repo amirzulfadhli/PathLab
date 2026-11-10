@@ -269,7 +269,7 @@ button, select {
 
 .chart-row {
     display: grid;
-    grid-template-columns: 90px minmax(0, 1fr);
+    grid-template-columns: 90px minmax(0, 1fr) 65px;
     align-items: center;
     gap: 16px;
     width: 100%;
@@ -290,6 +290,13 @@ button, select {
     transition: width 0.5s ease;
 }
 
+.bar-value {
+    text-align: right;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
 .chart-row > .bar-track {
     width: 100%;
     height: 16px;
@@ -304,4 +311,14 @@ button, select {
     background-color: #3b82f6;
     border-radius: 8px;
     transition: width 0.5s ease;
+}
+
+.best-explored {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.best-time {
+    color: #16a34a;
+    font-weight: 700;
 }
