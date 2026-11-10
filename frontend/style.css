@@ -287,7 +287,13 @@ button, select {
     height: 100%;
     background-color: #3b82f6;
     border-radius: 8px;
-    transition: width 0.5s ease;
+    transition: width 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bar {
+        transition: none;
+    }
 }
 
 .bar-value {
@@ -303,6 +309,27 @@ button, select {
     background-color: #e2e8f0;
     border-radius: 8px;
     overflow: hidden;
+    position: relative;
+}
+
+.chart-row > .bar-track::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: rgba(15, 23, 42, 0.25);
+    pointer-events: none;
+}
+
+.chart-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 120px;
+    margin-right: 65px;
+    font-size: 12px;
+    color: #64748b;
 }
 
 #comparisonChart .bar-track .bar {

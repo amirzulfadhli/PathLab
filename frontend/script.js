@@ -2,6 +2,7 @@ let rows = 5
 let cols = 5
 
 const grid = document.getElementById("grid");
+const mazePreset = document.getElementById("mazePreset");
 
 function createGrid() {
     grid.innerHTML = "";
@@ -31,7 +32,9 @@ function createGrid() {
                     cell.classList.remove("path", "explored");
                 });
                 document.getElementById("resultStatus").textContent = "";
+
                 cell.classList.toggle("wall");
+                mazePreset.value = "custom";
                 resetStatistics();
                 resetComparison();
             });
@@ -42,6 +45,9 @@ function createGrid() {
 }
 
 createGrid();
+if (mazePreset.value === "custom") {
+    mazePreset.value = "empty";
+}
 
 document.getElementById("mazePreset").addEventListener("change", (event) => {
     const preset = event.target.value;
@@ -83,7 +89,6 @@ function resetStatistics() {
     }
 
 const runButton = document.getElementById("runBFS");
-const mazePreset = document.getElementById("mazePreset");
 
 runButton.addEventListener("click", async() => {
     runButton.disabled = true;
@@ -184,12 +189,24 @@ const resetButton = document.getElementById("resetGrid");
 
 resetButton.addEventListener("click", () => {
     if(runButton.disabled){
-        return;
+            return;
+        }
+    
+    if(mazePreset.value === "custom") {
+        const confirmed = confirm (
+            "Reseting will reset your custom maze. Continue?"
+        );
+        if(!confirmed) {
+            return;
+        }
     }
 
     document.querySelectorAll(".cell").forEach(cell => {
         cell.classList.remove("wall", "path", "explored");
     });
+
+    mazePreset.value = "empty";
+
     document.getElementById("resultStatus").textContent = "";
 
     resetStatistics();
@@ -204,6 +221,10 @@ function updateGridSize (){
     rows = size;
     cols = size;
 
+    if (mazePreset.value === "custom") {
+    mazePreset.value = "empty";
+    }
+
     document.getElementById("mazePreset").dispatchEvent(new Event("change"));
     resetStatistics();
     resetComparison();
@@ -211,7 +232,19 @@ function updateGridSize (){
     console.log("Grid updated:", rows, cols);
 }
 
-gridSize.addEventListener("change", updateGridSize);
+gridSize.addEventListener("change", () => {
+    if (mazePreset.value === "custom") {
+        const confirmed = confirm (
+            "Resizing will reset your custom maze. Continue?"
+        );
+
+        if (!confirmed) {
+            gridSize.value = String(rows);
+            return;
+        }
+    }
+    updateGridSize();
+});
 
 updateGridSize();
 
@@ -290,7 +323,12 @@ compareButton.addEventListener("click", async () => {
 
             const percentage = (result.explored/(rows*cols)) * 100;
 
+            const barTrack =  document.getElementById(`${result.algorithm}Bar`).parentElement;
+
+            barTrack.title = `${result.algorithm.toUpperCase()}: ${result.explored}/${rows*cols} cells explored (${percentage.toFixed(1)}%)`;
+
             document.getElementById(`${result.algorithm}Bar`).style.width = `${percentage}%`;
+            document.getElementById(`${result.algorithm}BarValue`).textContent = `${percentage.toFixed(1)}%`;
             document.getElementById(`${result.algorithm}Percent`).textContent = `${percentage.toFixed(1)}%`;
 
             const timeCell = document.getElementById(`${result.algorithm}Time`)
@@ -329,7 +367,9 @@ function resetComparison() {
         document.getElementById(`${algorithm}Time`).textContent = "-";
 
         document.getElementById(`${algorithm}Bar`).style.width = "0%";
+        document.getElementById(`${algorithm}BarValue`).textContent = "-"
         document.getElementById(`${algorithm}Explored`).classList.remove("best-explored");
         document.getElementById(`${algorithm}Time`).classList.remove("best-time");
+        document.getElementById(`${algorithm}Bar`).parentElement.removeAttribute("title");
     });
 }
