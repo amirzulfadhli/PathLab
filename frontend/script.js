@@ -3,6 +3,7 @@ let cols = 5
 
 const grid = document.getElementById("grid");
 const mazePreset = document.getElementById("mazePreset");
+let previousPreset = mazePreset.value;
 
 function createGrid() {
     grid.innerHTML = "";
@@ -35,6 +36,7 @@ function createGrid() {
 
                 cell.classList.toggle("wall");
                 mazePreset.value = "custom";
+                previousPreset = "custom";
                 resetStatistics();
                 resetComparison();
             });
@@ -42,6 +44,49 @@ function createGrid() {
             grid.appendChild(cell);
         }
     }
+}
+
+function hasValidPath() {
+    const cells = document.querySelectorAll("#grid .cell");
+    const qeue = [0];
+    const visited =  new Set([0]);
+    const goal = rows*cols -1;
+
+    let head = 0;
+
+    while(head < qeue.length) {
+        const current = qeue[head++];
+
+        if(current === goal) {
+            return true;
+        }
+
+        const row = Math.floor(current/cols);
+        const column = current%cols;
+
+        const neighbors = [
+            [row -1, column],
+            [row +1, column],
+            [row, column -1],
+            [row, column +1]
+        ];
+
+        for (const [r, c] of neighbors) {
+            if (r <  0 || r >= rows || c < 0 || c >= cols) {
+                continue;
+            }
+
+            const index = r*cols + c;
+
+            if (visited.has(index) || cells[index].classList.contains("wall")) {
+                continue;
+            }
+
+            visited.add(index);
+            qeue.push(index);
+        }
+    }
+    return false;
 }
 
 createGrid();
@@ -52,6 +97,16 @@ if (mazePreset.value === "custom") {
 document.getElementById("mazePreset").addEventListener("change", (event) => {
     const preset = event.target.value;
 
+    if(event.isTrusted && previousPreset === "custom") {
+        const confirmed = confirm (
+            "Switching preset will delete your custom maze. Continue?"
+        );
+
+        if(!confirmed) {
+            mazePreset.value = previousPreset;
+            return;
+        }
+    }
     createGrid();
 
     if(preset === "single_wall") {
@@ -79,7 +134,34 @@ document.getElementById("mazePreset").addEventListener("change", (event) => {
             cells[index].classList.add("wall");
         }
     }
+    else if(preset === "random") {
+        const cells = document.querySelectorAll("#grid .cell");
+        let solvable = false;
+
+        for (let attempt = 0; attempt < 30; attempt++) {
+
+            cells.forEach(cell => {
+                cell.classList.remove("wall");
+
+                if (cell.classList.contains("start") || cell.classList.contains("end")) {
+                    return;
+                }
+                if (Math.random() < 0.25){
+                    cell.classList.add("wall");
+                }
+            });
+            if (hasValidPath()) {
+                solvable = true;
+                break;
+            }
+        }
+        if (!solvable) {
+            cells.forEach(cell => cells.classList.remove("wall"));
+        }
+    }
     resetComparison();
+    previousPreset = mazePreset.value;
+    regenerateButton.disabled = mazePreset.value !== "random";
 });
 
 function resetStatistics() {
@@ -89,6 +171,50 @@ function resetStatistics() {
     }
 
 const runButton = document.getElementById("runBFS");
+const regenerateButton = document.getElementById("regenerateMaze");
+const pauseButton = document.getElementById("pauseButton");
+const stopButton = document.getElementById("stopButton");
+
+let isPaused = false;
+let stopRequested = false;
+
+pauseButton.addEventListener("click", async() => {
+    isPaused = !isPaused;
+
+    pauseButton.textContent = isPaused ?  "Resume" : "Pause";
+});
+
+stopButton.addEventListener("click", () => {
+    stopRequested = true;
+    isPaused = false;
+
+    pauseButton.disabled = true;
+    pauseButton.textContent = "Pause";
+
+    document.getElementById("resultStatus").textContent = "Animation Stopped";
+});
+
+async function waitIfPause() {
+    while (isPaused && !stopRequested) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+}
+
+async function animationDelay(ms) {
+    let elapsed = 0;
+
+    while (elapsed < ms &&  !stopRequested) {
+        await waitIfPause();
+
+        if (stopRequested) return;
+
+        const interval =  Math.min(25, ms - elapsed);
+
+        await new Promise(resolve => setTimeout(resolve, interval));
+
+        elapsed += interval;
+    }
+}
 
 runButton.addEventListener("click", async() => {
     runButton.disabled = true;
@@ -96,6 +222,7 @@ runButton.addEventListener("click", async() => {
     resetButton.disabled = true;
     mazePreset.disabled = true;
     compareButton.disabled = true;
+    regenerateButton.disabled = true;
     const blocked =[];
 
     try {
@@ -157,31 +284,57 @@ runButton.addEventListener("click", async() => {
             cell.classList.remove("path", "explored");
         });
 
+        isPaused = false;
+        stopRequested = false;
+        stopButton.disabled = false;
+        pauseButton.disabled = false;
+
         for(const [row, column] of data.explored){
+            await waitIfPause();
+
+            if (stopRequested) break;
             const index = row * cols + column;
             const cell = cells[index];
 
             if(!cell.classList.contains("start") && !cell.classList.contains("end") && !cell.classList.contains("wall")) {
                 cell.classList.add("explored");
             }
-            await new Promise(resolve => setTimeout(resolve, speed));
+            await animationDelay(speed);
         }
 
         for (const [row, column] of data.path) {
+            await waitIfPause();
+
+            if (stopRequested) break;
             const index = row*cols + column;
             const cell =  cells[index]
 
             if(!cell.classList.contains("start") && !cell.classList.contains("end")) {
                 cell.classList.add("path");
             }
-            await new Promise(resolve => setTimeout(resolve, speed));
+            await animationDelay(speed);
         };
     } finally {
+        if (stopRequested) {
+            document.querySelectorAll(".cell.path, .cell.explored").forEach(cell => {
+                cell.classList.remove("path", "explored");
+            });
+            resetStatistics();
+        }
+
+        isPaused = false;
+        stopRequested = false;
+
+        stopButton.disabled = true;
+        pauseButton.disabled = true;
+        pauseButton.textContent = "Pause";
+
         runButton.disabled = false;
         gridSize.disabled = false;
         resetButton.disabled = false;
         mazePreset.disabled = false;
         compareButton.disabled = false;
+        regenerateButton.disabled = mazePreset.value !== "random";
     }
 })
 
@@ -206,6 +359,8 @@ resetButton.addEventListener("click", () => {
     });
 
     mazePreset.value = "empty";
+    previousPreset = "empty";
+    regenerateButton.disabled = true;
 
     document.getElementById("resultStatus").textContent = "";
 
@@ -223,6 +378,7 @@ function updateGridSize (){
 
     if (mazePreset.value === "custom") {
     mazePreset.value = "empty";
+    regenerateButton.disabled = true;
     }
 
     document.getElementById("mazePreset").dispatchEvent(new Event("change"));
@@ -258,6 +414,7 @@ compareButton.addEventListener("click", async () => {
     gridSize.disabled = true;
     resetButton.disabled = true;
     mazePreset.disabled = true;
+    regenerateButton.disabled = true;
 
     try {
         const blocked = [];
@@ -354,7 +511,15 @@ compareButton.addEventListener("click", async () => {
         gridSize.disabled = false;
         resetButton.disabled = false;
         mazePreset.disabled = false;
+        regenerateButton.disabled = mazePreset.value !=="random";
     }
+});
+
+regenerateButton.addEventListener("click", () => {
+    if (runButton.disabled ||  mazePreset.value !== "random") {
+        return;
+    }
+    mazePreset.dispatchEvent(new Event("change"));
 });
 
 function resetComparison() {

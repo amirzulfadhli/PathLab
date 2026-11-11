@@ -26,6 +26,8 @@
         </select>
 
         <button id="runBFS">Run Algorithm</button>
+        <button id="pauseButton" type="button" disabled>Pause</button>
+        <button id="stopButton" type="button" disabled>Stop</button>
         <button id="compareAlgorithm">Compare Algorithms</button>
         <button id="resetGrid">Reset Grid</button>
 
@@ -42,8 +44,11 @@
             <option value="empty">Empty Grid</option>
             <option value="single_wall">Single Wall</option>
             <option value="zigzag">Zigzag Maze</option>
+            <option value="random">Random Maze</option>
             <option value="custom" disabled>Custom Layout</option>
         </select>
+
+        <button id="regenerateMaze" type="button" disabled> Regenerate Maze</button>
     </div>
 
     <section class="grid-panel">

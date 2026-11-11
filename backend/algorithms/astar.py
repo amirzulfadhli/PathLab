@@ -48,9 +48,6 @@ def astar(start, end, blocked = None, grid_rows = 5, grid_cols = 5):
                 g_cost[neighbour] = new_g
                 parents[neighbour] = current
                 heapq.heappush(qeue, (new_f, new_h, neighbour))
-                
-    print("Destination discorvered:", end in g_cost)
-    print("Destination cost:", g_cost.get(end))
 
     return {
         "path": [],
