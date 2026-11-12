@@ -227,7 +227,7 @@ runButton.addEventListener("click", async() => {
 
     try {
         const algorithm = document.getElementById("algorithm").value;
-        
+
         console.log("Selected algorithm:", algorithm);
 
         const speed = Number (
@@ -256,8 +256,16 @@ runButton.addEventListener("click", async() => {
                 algorithm: algorithm
             })
         })
-            
+
         const data = await response.json();
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+
+            throw new Error (
+                errorData.error || `Request failed (HTTP ${response.status})`
+            )
+        }
 
         document.getElementById("pathMoves").textContent = data.path.length > 0? data.path.length -1 : "-";
         document.getElementById("exploredCount").textContent = data.explored.length;
@@ -314,6 +322,19 @@ runButton.addEventListener("click", async() => {
             }
             await animationDelay(speed);
         };
+    } catch (error) {
+        console.error("Pathfinding failed:", error);
+
+        document.getElementById("resultStatus").textContent =
+            error.message === "Failed to fetch"
+            ? "Unable to connect to the PathLab server"
+            : `Pathfinding failed: ${error.message}`;
+
+        document.querySelectorAll(".cell.path, .cell.explored").forEach(cell => {
+            cell.classList.remove("path", "explored");
+        });
+        resetStatistics();
+
     } finally {
         if (stopRequested) {
             document.querySelectorAll(".cell.path, .cell.explored").forEach(cell => {
@@ -344,7 +365,7 @@ resetButton.addEventListener("click", () => {
     if(runButton.disabled){
             return;
         }
-    
+
     if(mazePreset.value === "custom") {
         const confirmed = confirm (
             "Reseting will reset your custom maze. Continue?"
@@ -408,7 +429,7 @@ const compareButton = document.getElementById("compareAlgorithm");
 
 compareButton.addEventListener("click", async () => {
     if (runButton.disabled) return;
-    
+
     runButton.disabled = true;
     compareButton.disabled = true;
     gridSize.disabled = true;
@@ -427,7 +448,7 @@ compareButton.addEventListener("click", async () => {
                 blocked.push([row, column]);
             }
         });
-        
+
         const algorithms = ["bfs", "dijkstra", "astar"];
 
         const result = await Promise.all(
@@ -445,7 +466,11 @@ compareButton.addEventListener("click", async () => {
                 });
 
                 if(!response.ok) {
-                    throw new Error(`${algorithm}: HTTP ${response.status}`);
+                    const errorData = await response.json().catch(() => ({}));
+
+                    throw new Error(
+                        errorData.error || `Request failed (HTTP ${response.status})`
+                    );
                 }
 
                 const data = await response.json();
@@ -505,6 +530,7 @@ compareButton.addEventListener("click", async () => {
         resetComparison();
 
         document.getElementById("resultStatus").textContent = "Comparison failed. Please check the server and try again";
+
     } finally {
         runButton.disabled = false;
         compareButton.disabled = false;
